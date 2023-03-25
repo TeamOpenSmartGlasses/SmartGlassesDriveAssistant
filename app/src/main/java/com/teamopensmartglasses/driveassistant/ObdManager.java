@@ -103,7 +103,7 @@ public class ObdManager {
                     sppSocket = obdDongle.createRfcommSocketToServiceRecord(UUID.fromString("00001101-0000-1000-8000-00805F9B34FB")); // Magic Number UUID for SPP
                 }
                 catch (Exception e){
-                    //Log.e("AutoHud", "Couldn't create RFCOMM socket. Sucks to be you");
+                    Log.e("AutoHud", "Couldn't create RFCOMM socket. Sucks to be you");
                     e.printStackTrace();
                     return;
                 }
@@ -115,7 +115,7 @@ public class ObdManager {
                     sppSocket.connect();
                 }
                 catch (IOException e) {
-                    //Log.e("AutoHud", "Failed to connect - IOException");
+                    Log.e("AutoHud", "Failed to connect - IOException");
                     e.printStackTrace();
                     return;
                 }
@@ -127,7 +127,7 @@ public class ObdManager {
                     sppTx = new BufferedOutputStream(sppSocket.getOutputStream());
                 }
                 catch (IOException e) {
-                    //Log.e("AutoHud", "Failed to open Rx and/or Tx");
+                    Log.e("AutoHud", "Failed to open Rx and/or Tx");
                     e.printStackTrace();
                     return;
                 }
@@ -151,17 +151,17 @@ public class ObdManager {
 
             if (sppRx != null) {
                 sppRx.close();
-                Log.d("AutoHud", "Closed SPP RX");
+               // Log.d("AutoHud", "Closed SPP RX");
             }
 
             if (sppTx != null) {
                 sppTx.close();
-                Log.d("AutoHud", "Closed SPP TX");
+               // Log.d("AutoHud", "Closed SPP TX");
             }
 
             if (sppSocket != null) {
                 sppSocket.close();
-                Log.d("AutoHud", "Closed SPP socket");
+              //  Log.d("AutoHud", "Closed SPP socket");
             }
         }
         catch (IOException e) {
@@ -242,8 +242,8 @@ public class ObdManager {
 
                     Sentences.add(activeSentence.toString());
 
-                    Log.i("AutoHud", "Adding new sentence to Sentences. Sentence is:");
-                    Log.i("AutoHud", activeSentence.toString());
+                    //Log.i("AutoHud", "Adding new sentence to Sentences. Sentence is:");
+                    //Log.i("AutoHud", activeSentence.toString());
 
                     activeSentence.delete(0, activeSentence.length() + 1);
                 }
@@ -251,11 +251,11 @@ public class ObdManager {
                     continue;
                 }
                 else if (lastChar == '>') {
-                    Log.i("AutoHud", "Received >, Ready for new command");
+                    //Log.i("AutoHud", "Received >, Ready for new command");
                     IsReadyForCommand = true;
                 }
                 else {
-                    Log.d("AutoHud", "Rx Char: " + lastChar);
+                  //  Log.d("AutoHud", "Rx Char: " + lastChar);
                     activeSentence.append(lastChar);
                 }
 
@@ -365,13 +365,20 @@ public class ObdManager {
 
                     Sentences.remove(0);
                 }
+
+
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
             }
         }
 
 
         private void println(String command) {
             try {
-                Log.i("AutoHud", "Printing command " + command);
+               // Log.i("AutoHud", "Printing command " + command);
                 sppTx.write(command.getBytes());
                 sppTx.write('\r');
                 sppTx.flush();

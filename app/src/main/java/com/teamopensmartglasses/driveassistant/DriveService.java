@@ -61,9 +61,9 @@ public class DriveService extends SmartGlassesAndroidService {
         sgmLib.registerCommand(command, this::driveCommandCallback);
 
         Log.d(TAG, "DRIVE ASSISTANT SERVICE STARTED");
-        sgmLib.sendReferenceCard("Success", "Translation Service started");
 
         obdManager = new ObdManager();
+        driveCommandCallback("",0);
     }
 
     @Override
@@ -74,7 +74,7 @@ public class DriveService extends SmartGlassesAndroidService {
 
     public void driveCommandCallback(String args, long commandTriggeredTime){
         Log.d("TAG","Drive callback called");
-        sgmLib.sendReferenceCard("shit", "fuck");
+        sgmLib.sendReferenceCard("Drive Assistant", "Drive Assistant started");
         //Get ready
         obdManager.Connect();
         listenToDriveStuff();
@@ -87,7 +87,9 @@ public class DriveService extends SmartGlassesAndroidService {
 
                     @Override
                     public void onTachChanged(ObdManager manager) {
-                        tachString = String.format("%.1f", (manager.getTach() / 1000f));
+                        //tachString = String.format("%.1f", (manager.getTach() / 1000f));
+                        //Log.d(TAG,"HOLYFUCK NEW TACH: " + manager.getTach());
+                        tachString = String.valueOf(manager.getTach());
                     }
 
                     @Override
@@ -97,14 +99,16 @@ public class DriveService extends SmartGlassesAndroidService {
 
                     @Override
                     public void onMpgChanged(ObdManager manager) {
-                        mpgString = String.format("%.1f", manager.getSpeed());
+                        //mpgString = String.format("%.1d", manager.getSpeed());
+                        //mpgString = "";
                     }
 
                     @Override
                     public void onFuelChanged(ObdManager manager) {
-                        fuelString = Integer.toString(manager.getFuel()) + "%";
+                        //fuelString = Integer.toString(manager.getFuel()) + "%";
                     }
                 };
+        obdManager.addOnChangedListener(obdListener);
     }
 
     public void startDriveDisplayRefresh(){

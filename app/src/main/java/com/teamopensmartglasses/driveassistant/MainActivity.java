@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
 import android.Manifest;
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
     private final String TAG = "DriveAssistantApp_MainActivity";
@@ -47,12 +48,13 @@ public class MainActivity extends AppCompatActivity {
         checkPermissions();
 
         mBound = false;
-        startDriveService();
+        //startDriveService();
     }
 
     private void checkPermissions(){
         int permission1 = ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
         int permission2 = ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_SCAN);
+        int permission3 = ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT);
         if (permission1 != PackageManager.PERMISSION_GRANTED) {
             // We don't have permission so prompt the user
             ActivityCompat.requestPermissions(
@@ -67,6 +69,19 @@ public class MainActivity extends AppCompatActivity {
                     1
             );
         }
+
+        if(permission1 == PackageManager.PERMISSION_GRANTED && permission2 == PackageManager.PERMISSION_GRANTED)
+        {
+            startDriveService();
+        }
+        else
+        {
+            String txt = "NOT ENOUGH PERMISSIONS. VERY SAD SO BAD AND SAD ;(";
+            Toast.makeText(this, txt, Toast.LENGTH_LONG);
+            Log.d(TAG, txt);
+           // finish();
+        }
+
     }
 
     @Override
