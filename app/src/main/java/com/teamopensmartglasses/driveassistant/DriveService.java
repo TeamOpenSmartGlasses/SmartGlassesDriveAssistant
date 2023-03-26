@@ -13,12 +13,14 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.teamopensmartglasses.sgmlib.SGMCommand;
 import com.teamopensmartglasses.sgmlib.SGMLib;
 import com.teamopensmartglasses.sgmlib.SmartGlassesAndroidService;
+import com.teamopensmartglasses.sgmlib.events.ScrollingTextViewStartEvent;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -75,11 +77,10 @@ public class DriveService extends SmartGlassesAndroidService {
 
     public void driveCommandCallback(String args, long commandTriggeredTime){
         Log.d("TAG","Drive callback called");
-        sgmLib.sendReferenceCard("Drive Assistant", "Drive Assistant started");
+        sgmLib.sendReferenceCard("Drive Assistant", "Searching for OBDII connection...");
         //Get ready
         obdManager.Connect();
         listenToDriveStuff();
-        startDriveDisplayRefresh();
     }
 
     public void listenToDriveStuff(){
@@ -125,4 +126,9 @@ public class DriveService extends SmartGlassesAndroidService {
         }, delay);
     }
 
+    @Subscribe
+    public void onObdConnectedEvent(ObdConnectedEvent receivedEvent){
+        Toast.makeText(getBaseContext(), "OBDII Connected!", Toast.LENGTH_LONG);
+        startDriveDisplayRefresh();
+    }
 }

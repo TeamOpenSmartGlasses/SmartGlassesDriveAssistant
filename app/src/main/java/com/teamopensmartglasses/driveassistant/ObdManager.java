@@ -15,6 +15,8 @@ import android.bluetooth.BluetoothSocket;
 import android.util.Log;
 import android.widget.Toast;
 
+import org.greenrobot.eventbus.EventBus;
+
 public class ObdManager {
     private static final String ADAPTER_NAME = "OBDII";
 
@@ -132,6 +134,7 @@ public class ObdManager {
                     return;
                 }
 
+                EventBus.getDefault().post(new ObdConnectedEvent());
                 generateObdCommunicator();
             }
         }
