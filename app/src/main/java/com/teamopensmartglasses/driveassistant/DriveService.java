@@ -70,6 +70,7 @@ public class DriveService extends SmartGlassesAndroidService {
     public void onDestroy() {
         super.onDestroy();
         EventBus.getDefault().unregister(this);
+        handler.removeCallbacksAndMessages(null);
     }
 
     public void driveCommandCallback(String args, long commandTriggeredTime){
