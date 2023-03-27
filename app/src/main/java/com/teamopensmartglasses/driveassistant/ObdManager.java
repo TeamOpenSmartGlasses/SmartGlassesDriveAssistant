@@ -12,6 +12,7 @@ import java.util.UUID;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.media.metrics.Event;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -119,6 +120,7 @@ public class ObdManager {
                 catch (IOException e) {
                     Log.e("AutoHud", "Failed to connect - IOException");
                     e.printStackTrace();
+                    EventBus.getDefault().post(new ObdDisconnectedEvent());
                     return;
                 }
 
@@ -229,6 +231,9 @@ public class ObdManager {
                     lastRead = sppRx.read();
                 }
                 catch (IOException e) {
+                    //Connection ended
+                    EventBus.getDefault().post(new ObdDisconnectedEvent());
+
                     //Log.e("AutoHud", "IOException while reading from RX buffer");
                     //Log.e("AutoHud", e.getLocalizedMessage());
                     e.printStackTrace();
@@ -370,11 +375,11 @@ public class ObdManager {
                 }
 
 
-                try {
-                    Thread.sleep(500);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
+                //try {
+                //    Thread.sleep(500);
+                //} catch (InterruptedException e) {
+                //    throw new RuntimeException(e);
+                //}
             }
         }
 

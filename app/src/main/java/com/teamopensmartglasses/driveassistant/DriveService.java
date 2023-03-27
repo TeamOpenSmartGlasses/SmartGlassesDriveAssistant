@@ -29,6 +29,7 @@ import java.util.UUID;
 
 public class DriveService extends SmartGlassesAndroidService {
     public final String TAG = "DriveAssistantApp_DriveService";
+    static final String appName = "Drive Assistant";
     public ObdManager obdManager;
     final Handler handler = new Handler();
     final int delay = 1000; // 1000 milliseconds == 1 second
@@ -44,7 +45,7 @@ public class DriveService extends SmartGlassesAndroidService {
         super(MainActivity.class,
                 "driveassistant_app",
                 1002,
-                "Drive Assistant",
+                appName,
                 "Drive Assistant for smartglasses", com.google.android.material.R.drawable.notify_panel_notification_icon_bg);
     }
 
@@ -57,14 +58,16 @@ public class DriveService extends SmartGlassesAndroidService {
 
         //Define command with a UUID
         UUID commandUUID = UUID.fromString("5b824bb6-d3b3-417d-8c74-3b103efb403d");
-        SGMCommand command = new SGMCommand("Drive Assistant", commandUUID, new String[]{"Drive assistant"}, "Speed/tach on smartglasses!");
+        SGMCommand command = new SGMCommand(appName, commandUUID, new String[]{"Drive assistant"}, "Speed/tach on smartglasses!");
 
         //Register the command
         sgmLib.registerCommand(command, this::driveCommandCallback);
 
         Log.d(TAG, "DRIVE ASSISTANT SERVICE STARTED");
 
+        EventBus.getDefault().register(this);
         obdManager = new ObdManager();
+        listenToDriveStuff();
         driveCommandCallback("",0);
     }
 
@@ -72,15 +75,13 @@ public class DriveService extends SmartGlassesAndroidService {
     public void onDestroy() {
         super.onDestroy();
         EventBus.getDefault().unregister(this);
-        handler.removeCallbacksAndMessages(null);
+        stopObdTasks();
     }
 
     public void driveCommandCallback(String args, long commandTriggeredTime){
-        Log.d("TAG","Drive callback called");
-        sgmLib.sendReferenceCard("Drive Assistant", "Searching for OBDII connection...");
-        //Get ready
+        Log.d(TAG,"Drive callback called");
+        sgmLib.sendReferenceCard(appName, "Searching for OBDII connection...");
         obdManager.Connect();
-        listenToDriveStuff();
     }
 
     public void listenToDriveStuff(){
@@ -102,7 +103,6 @@ public class DriveService extends SmartGlassesAndroidService {
                     @Override
                     public void onMpgChanged(ObdManager manager) {
                         //mpgString = String.format("%.1d", manager.getSpeed());
-                        //mpgString = "";
                     }
 
                     @Override
@@ -116,19 +116,29 @@ public class DriveService extends SmartGlassesAndroidService {
     public void startDriveDisplayRefresh(){
         handler.postDelayed(new Runnable() {
             public void run() {
-                System.out.println("myHandler: here!"); // Do your work here
+                //System.out.println("myHandler: here!"); // Do your work here
 
                 String toSend = speedString + "mph | " + tachString + "rpm";
-                sgmLib.sendReferenceCard("Drive Assistant", toSend);
+                sgmLib.sendReferenceCard(appName, toSend);
 
                 handler.postDelayed(this, delay);
             }
         }, delay);
     }
 
+    public void stopObdTasks(){
+        obdManager.Disconnect();
+        handler.removeCallbacksAndMessages(null);
+        sgmLib.sendReferenceCard(appName, appName + " stopped.");
+    }
+
     @Subscribe
     public void onObdConnectedEvent(ObdConnectedEvent receivedEvent){
-        Toast.makeText(getBaseContext(), "OBDII Connected!", Toast.LENGTH_LONG);
         startDriveDisplayRefresh();
+    }
+
+    @Subscribe
+    public void onObdDisonnectedEvent(ObdDisconnectedEvent receivedEvent){
+        stopSelf();
     }
 }
