@@ -18,6 +18,9 @@ import android.widget.Toast;
 
 import org.greenrobot.eventbus.EventBus;
 
+/*
+99% of this class ripped from https://github.com/ZackFreedman/Voidstar-AutoHud
+ */
 public class ObdManager {
     private static final String ADAPTER_NAME = "OBDII";
 
