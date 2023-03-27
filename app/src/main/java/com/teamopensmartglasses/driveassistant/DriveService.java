@@ -73,9 +73,10 @@ public class DriveService extends SmartGlassesAndroidService {
 
     @Override
     public void onDestroy() {
-        super.onDestroy();
+        Log.d(TAG, "onDestroy called");
         EventBus.getDefault().unregister(this);
         stopObdTasks();
+        super.onDestroy();
     }
 
     public void driveCommandCallback(String args, long commandTriggeredTime){
