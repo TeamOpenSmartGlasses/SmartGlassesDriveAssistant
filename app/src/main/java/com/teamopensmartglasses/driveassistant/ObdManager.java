@@ -55,6 +55,8 @@ public class ObdManager {
     private int maf;
     private float mpg;
 
+    private int consecutiveFailures = 0;
+    private final int failuresUntilStop = 15;
 
     public interface OnChangedListener {
         void onTachChanged (ObdManager manager);
@@ -232,10 +234,18 @@ public class ObdManager {
             while(isAlive) {
                 try {
                     lastRead = sppRx.read();
+
+                    //If we're here, all is well!
+                    consecutiveFailures = 0;
                 }
                 catch (IOException e) {
                     //Connection ended
-                    EventBus.getDefault().post(new ObdDisconnectedEvent());
+                    //This can be temporary (ie: user locks phone mid-use) or permanent, therefore wait for multiple failures to quit
+
+                    consecutiveFailures = consecutiveFailures + 1;
+                    if(consecutiveFailures > failuresUntilStop) {
+                        EventBus.getDefault().post(new ObdDisconnectedEvent());
+                    }
 
                     //Log.e("AutoHud", "IOException while reading from RX buffer");
                     //Log.e("AutoHud", e.getLocalizedMessage());
