@@ -125,7 +125,7 @@ public class ObdManager {
                 catch (IOException e) {
                     Log.e("AutoHud", "Failed to connect - IOException");
                     e.printStackTrace();
-                    EventBus.getDefault().post(new ObdDisconnectedEvent());
+                    EventBus.getDefault().post(new ObdDisconnectedEvent("Failed to connect to OBDII reader"));
                     return;
                 }
 
@@ -244,7 +244,7 @@ public class ObdManager {
 
                     consecutiveFailures = consecutiveFailures + 1;
                     if(consecutiveFailures > failuresUntilStop) {
-                        EventBus.getDefault().post(new ObdDisconnectedEvent());
+                        EventBus.getDefault().post(new ObdDisconnectedEvent("Lost connection to OBDII reader"));
                     }
 
                     //Log.e("AutoHud", "IOException while reading from RX buffer");

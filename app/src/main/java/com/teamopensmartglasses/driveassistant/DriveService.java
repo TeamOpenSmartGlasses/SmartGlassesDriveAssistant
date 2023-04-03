@@ -20,7 +20,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.teamopensmartglasses.sgmlib.SGMCommand;
 import com.teamopensmartglasses.sgmlib.SGMLib;
 import com.teamopensmartglasses.sgmlib.SmartGlassesAndroidService;
-import com.teamopensmartglasses.sgmlib.events.ScrollingTextViewStartEvent;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -67,15 +66,14 @@ public class DriveService extends SmartGlassesAndroidService {
 
         EventBus.getDefault().register(this);
         obdManager = new ObdManager();
-        listenToDriveStuff();
-        driveCommandCallback("",0);
     }
 
     @Override
     public void onDestroy() {
         Log.d(TAG, "onDestroy called");
         EventBus.getDefault().unregister(this);
-        stopObdTasks();
+        stopObdTasks("");
+        sgmLib.deinit();
         super.onDestroy();
     }
 
@@ -83,6 +81,7 @@ public class DriveService extends SmartGlassesAndroidService {
         Log.d(TAG,"Drive callback called");
         sgmLib.sendReferenceCard(appName, "Searching for OBDII connection...");
         obdManager.Connect();
+        listenToDriveStuff();
     }
 
     public void listenToDriveStuff(){
@@ -127,10 +126,10 @@ public class DriveService extends SmartGlassesAndroidService {
         }, delay);
     }
 
-    public void stopObdTasks(){
+    public void stopObdTasks(String reason){
         obdManager.Disconnect();
         handler.removeCallbacksAndMessages(null);
-        sgmLib.sendReferenceCard(appName, appName + " stopped.");
+        sgmLib.sendReferenceCard(appName, appName + " stopped:\n" + reason);
     }
 
     @Subscribe
@@ -140,6 +139,10 @@ public class DriveService extends SmartGlassesAndroidService {
 
     @Subscribe
     public void onObdDisonnectedEvent(ObdDisconnectedEvent receivedEvent){
+        Log.d(TAG, "DISCONNECTED OR FAILED TO CONNECT... STOPPING DRIVE ASSISTANT");
+        stopObdTasks(receivedEvent.reason);
+
+        stopForeground(true);
         stopSelf();
     }
 }
