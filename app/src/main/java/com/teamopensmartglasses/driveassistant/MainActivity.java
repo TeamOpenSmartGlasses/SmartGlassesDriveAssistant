@@ -122,7 +122,8 @@ public class MainActivity extends AppCompatActivity {
         }
         Log.d(TAG, "Starting service.");
         Intent startIntent = new Intent(this, DriveService.class);
-        startIntent.setAction(DriveService.ACTION_START_FOREGROUND_SERVICE);
+        startIntent.setAction(DriveService.INTENT_ACTION);
+        startIntent.putExtra(DriveService.TPA_ACTION, DriveService.ACTION_START_FOREGROUND_SERVICE);
         startService(startIntent);
         bindDriveService();
     }
