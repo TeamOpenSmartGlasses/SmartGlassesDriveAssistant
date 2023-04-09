@@ -1,6 +1,6 @@
-package com.teamopensmartglasses.driveassistant;
+package com.teamopensmartglasses.driveassistant.events;
 
 public class ObdDisconnectedEvent {
-    String reason;
+    public String reason;
     public ObdDisconnectedEvent(String myReason){reason = myReason;}
 }

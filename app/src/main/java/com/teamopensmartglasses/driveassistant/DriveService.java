@@ -3,20 +3,8 @@ package com.teamopensmartglasses.driveassistant;
 import android.os.Handler;
 import android.util.Log;
 
-import com.google.android.material.R.drawable.*;
-import android.app.ActivityManager;
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.Intent;
-import android.content.ServiceConnection;
-import android.os.Bundle;
-import android.os.IBinder;
-import android.util.Log;
-import android.view.View;
-import android.widget.Toast;
-
-import androidx.appcompat.app.AppCompatActivity;
-
+import com.teamopensmartglasses.driveassistant.events.ObdConnectedEvent;
+import com.teamopensmartglasses.driveassistant.events.ObdDisconnectedEvent;
 import com.teamopensmartglasses.sgmlib.SGMCommand;
 import com.teamopensmartglasses.sgmlib.SGMLib;
 import com.teamopensmartglasses.sgmlib.SmartGlassesAndroidService;
@@ -36,7 +24,7 @@ public class DriveService extends SmartGlassesAndroidService {
     public String speedString = "X";
     public String fuelString = "X";
     public String mpgString = "X";
-
+    FocusHandler focusHandler;
     //our instance of the SGM library
     public SGMLib sgmLib;
 
@@ -52,6 +40,8 @@ public class DriveService extends SmartGlassesAndroidService {
     public void onCreate() {
         super.onCreate();
 
+        /* Handle SGMLib stuff */
+
         //Create SGMLib instance with context: this
         sgmLib = new SGMLib(this);
 
@@ -61,6 +51,10 @@ public class DriveService extends SmartGlassesAndroidService {
 
         //Register the command
         sgmLib.registerCommand(command, this::driveCommandCallback);
+
+        focusHandler = new FocusHandler();
+
+        /* Handle DriveAssistant stuff */
 
         Log.d(TAG, "DRIVE ASSISTANT SERVICE STARTED");
 
@@ -79,6 +73,7 @@ public class DriveService extends SmartGlassesAndroidService {
 
     public void driveCommandCallback(String args, long commandTriggeredTime){
         Log.d(TAG,"Drive callback called");
+        sgmLib.requestFocus(focusHandler); //Request SGM's focus
         sgmLib.sendReferenceCard(appName, "Searching for OBDII connection...");
         obdManager.Connect();
         listenToDriveStuff();

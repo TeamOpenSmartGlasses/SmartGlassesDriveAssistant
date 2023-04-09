@@ -12,9 +12,10 @@ import java.util.UUID;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
-import android.media.metrics.Event;
 import android.util.Log;
-import android.widget.Toast;
+
+import com.teamopensmartglasses.driveassistant.events.ObdConnectedEvent;
+import com.teamopensmartglasses.driveassistant.events.ObdDisconnectedEvent;
 
 import org.greenrobot.eventbus.EventBus;
 
