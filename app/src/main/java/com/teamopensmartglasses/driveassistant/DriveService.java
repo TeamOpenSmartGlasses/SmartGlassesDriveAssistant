@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.teamopensmartglasses.driveassistant.events.ObdConnectedEvent;
 import com.teamopensmartglasses.driveassistant.events.ObdDisconnectedEvent;
+import com.teamopensmartglasses.driveassistant.events.ObdFoundPairedDeviceEvent;
 import com.teamopensmartglasses.sgmlib.SGMCommand;
 import com.teamopensmartglasses.sgmlib.SGMLib;
 import com.teamopensmartglasses.sgmlib.SmartGlassesAndroidService;
@@ -24,6 +25,10 @@ public class DriveService extends SmartGlassesAndroidService {
     public String speedString = "X";
     public String fuelString = "X";
     public String mpgString = "X";
+    boolean displayRefreshStarted = false;
+    public boolean displayBottom = true;
+    public boolean displayRight = true;
+    public String padding = "";
     FocusHandler focusHandler;
     //our instance of the SGM library
     public SGMLib sgmLib;
@@ -60,13 +65,15 @@ public class DriveService extends SmartGlassesAndroidService {
 
         EventBus.getDefault().register(this);
         obdManager = new ObdManager();
+        padding = maybeGeneratePadding();
     }
 
     @Override
     public void onDestroy() {
         Log.d(TAG, "onDestroy called");
         EventBus.getDefault().unregister(this);
-        stopObdTasks("");
+        stopObdTasks();
+        displayAppStopped("Service closed");
         sgmLib.deinit();
         super.onDestroy();
     }
@@ -74,6 +81,10 @@ public class DriveService extends SmartGlassesAndroidService {
     public void driveCommandCallback(String args, long commandTriggeredTime){
         Log.d(TAG,"Drive callback called");
         sgmLib.requestFocus(focusHandler); //Request SGM's focus
+
+        // Make sure we aren't already connected...
+        stopObdTasks();
+
         sgmLib.sendReferenceCard(appName, "Searching for OBDII connection...");
         obdManager.Connect();
         listenToDriveStuff();
@@ -88,6 +99,9 @@ public class DriveService extends SmartGlassesAndroidService {
                         //tachString = String.format("%.1f", (manager.getTach() / 1000f));
                         //Log.d(TAG,"HOLYFUCK NEW TACH: " + manager.getTach());
                         tachString = String.valueOf(manager.getTach());
+
+                        if(!displayRefreshStarted)
+                            startDriveDisplayRefresh();
                     }
 
                     @Override
@@ -109,11 +123,12 @@ public class DriveService extends SmartGlassesAndroidService {
     }
 
     public void startDriveDisplayRefresh(){
+        displayRefreshStarted = true;
         handler.postDelayed(new Runnable() {
             public void run() {
-                //System.out.println("myHandler: here!"); // Do your work here
+                String toSend = padding;
+                toSend += speedString + "mph | " + tachString + "rpm";
 
-                String toSend = speedString + "mph | " + tachString + "rpm";
                 sgmLib.sendReferenceCard(appName, toSend);
 
                 handler.postDelayed(this, delay);
@@ -121,12 +136,9 @@ public class DriveService extends SmartGlassesAndroidService {
         }, delay);
     }
 
-    public void stopObdTasks(String reason){
-        obdManager.Disconnect();
-        handler.removeCallbacksAndMessages(null);
-        sgmLib.sendReferenceCard(appName, appName + " stopped:\n" + reason);
-    }
-
+    /* Subscriptions */
+    @Subscribe
+    public void onObdFoundEvent(ObdFoundPairedDeviceEvent receivedEvent){ sgmLib.sendReferenceCard(appName, "Found paired OBDII device...\nConnecting..."); }
     @Subscribe
     public void onObdConnectedEvent(ObdConnectedEvent receivedEvent){
         startDriveDisplayRefresh();
@@ -135,9 +147,36 @@ public class DriveService extends SmartGlassesAndroidService {
     @Subscribe
     public void onObdDisonnectedEvent(ObdDisconnectedEvent receivedEvent){
         Log.d(TAG, "DISCONNECTED OR FAILED TO CONNECT... STOPPING DRIVE ASSISTANT");
-        stopObdTasks(receivedEvent.reason);
-
+        stopObdTasks();
+        displayAppStopped(receivedEvent.reason);
         stopForeground(true);
         stopSelf();
+    }
+
+    /* Helpers */
+    public String maybeGeneratePadding(){
+        String pad = "";
+        if(displayBottom) {
+            for (int i = 0; i < 8; i++) {
+                //25 spaces = 1 line on ActiveLook Engo 2
+                pad += "                         ";
+            }
+        }
+        if(displayRight){
+            pad += "   ";
+        }
+        return pad;
+    }
+
+    public void displayAppStopped(String reason){
+        sgmLib.sendReferenceCard(appName, appName + " stopped:\n" + reason);
+    }
+
+    public void stopObdTasks(){
+        obdManager.Disconnect();
+
+        //Cancel screen refresh
+        handler.removeCallbacksAndMessages(null);
+        displayRefreshStarted = false;
     }
 }

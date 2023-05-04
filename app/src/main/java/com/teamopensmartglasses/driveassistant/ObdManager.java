@@ -14,8 +14,8 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.util.Log;
 
-import com.teamopensmartglasses.driveassistant.events.ObdConnectedEvent;
 import com.teamopensmartglasses.driveassistant.events.ObdDisconnectedEvent;
+import com.teamopensmartglasses.driveassistant.events.ObdFoundPairedDeviceEvent;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -105,6 +105,7 @@ public class ObdManager {
 
                 if (obdDongle == null) {
                     Log.d("VSQuest", "OBD Dongle not found. Check if it's paired, in range, and that the ADAPTER_NAME constant in ObdManager.java is correct.");
+                    EventBus.getDefault().post(new ObdDisconnectedEvent("No \"OBDII\" device paired with phone"));
                     return;
                 }
 
@@ -122,6 +123,7 @@ public class ObdManager {
                 try {
                     bluetoothAdapter.cancelDiscovery();
                     sppSocket.connect();
+                    EventBus.getDefault().post(new ObdFoundPairedDeviceEvent());
                 }
                 catch (IOException e) {
                     Log.e("AutoHud", "Failed to connect - IOException");
@@ -139,10 +141,10 @@ public class ObdManager {
                 catch (IOException e) {
                     Log.e("AutoHud", "Failed to open Rx and/or Tx");
                     e.printStackTrace();
+                    EventBus.getDefault().post(new ObdDisconnectedEvent("Failed to open RX/TX"));
                     return;
                 }
 
-                EventBus.getDefault().post(new ObdConnectedEvent());
                 generateObdCommunicator();
             }
         }
