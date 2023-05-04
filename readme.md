@@ -2,6 +2,8 @@
 
 This is an example app that displays your vehicle's speed and engine RPM on your smartglasses. It works in conjunction with the [SmartGlassesManager](https://github.com/TeamOpenSmartGlasses/SmartGlassesManager).
 
+[![Demo video](http://img.youtube.com/vi/XDQ6MuoZ7AE/0.jpg)](https://www.youtube.com/watch?v=XDQ6MuoZ7AE "SmartGlassesDriveAssistant Demo")
+
 ## Installation
 
 * Install the [SmartGlassesManager](https://github.com/TeamOpenSmartGlasses/SmartGlassesManager) on your phone and make sure it's running.
@@ -26,4 +28,4 @@ to discuss what you would like to change.
 
 ## License
 
-[MIT](https://choosealicense.com/licenses/mit/)
+[MIT](https://github.com/TeamOpenSmartGlasses/SmartGlassesDriveAssistant/blob/main/LICENSE)
