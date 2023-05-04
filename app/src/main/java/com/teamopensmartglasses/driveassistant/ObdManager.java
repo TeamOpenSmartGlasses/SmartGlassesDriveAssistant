@@ -397,6 +397,7 @@ public class ObdManager {
                 //    throw new RuntimeException(e);
                 //}
             }
+            EventBus.getDefault().post(new ObdDisconnectedEvent("Dead connection"));
         }
 
 
