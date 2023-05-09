@@ -21,6 +21,18 @@ This app gets your vehicle's speed and RPM from a Bluetooth ODB II reader. You c
 * Launch the app via the [SmartGlassesManager](https://github.com/TeamOpenSmartGlasses/SmartGlassesManager)
 * * (Do this by saying: "Hey computer, drive assistant")
 
+## TODO
+
+* [ ] Optimize display refresh
+    * Only refresh for significant changes (±50 rpm, ±1mph)
+    * Prevent "flicker" on display update (related to SGM)
+* [ ] Improve padding
+    * Make left padding work
+    * Add user-configurable option to enable top and/or left padding in the app
+* [ ] Stretch goals
+    * Google Maps (or similar) integration for navigation
+    * [RoadCurvature](https://roadcurvature.com/) integration for blind turns
+
 ## Contributing
 
 Pull requests are welcome. For major changes, please open an issue first

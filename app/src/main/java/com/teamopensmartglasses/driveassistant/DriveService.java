@@ -20,7 +20,7 @@ public class DriveService extends SmartGlassesAndroidService {
     static final String appName = "Drive Assistant";
     public ObdManager obdManager;
     final Handler handler = new Handler();
-    final int delay = 1000; // 1000 milliseconds == 1 second
+    final int delay = 2000; // 1000 milliseconds == 1 second
     public String tachString = "X";
     public String speedString = "X";
     public String fuelString = "X";
@@ -163,7 +163,7 @@ public class DriveService extends SmartGlassesAndroidService {
             }
         }
         if(displayRight){
-            pad += "   ";
+            pad += "  ";
         }
         return pad;
     }
