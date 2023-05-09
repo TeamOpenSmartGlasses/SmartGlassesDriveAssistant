@@ -84,6 +84,7 @@ public class DriveService extends SmartGlassesAndroidService {
 
         // Make sure we aren't already connected...
         stopObdTasks();
+        obdManager = new ObdManager();
 
         sgmLib.sendReferenceCard(appName, "Searching for OBDII connection...");
         obdManager.Connect();
@@ -97,7 +98,7 @@ public class DriveService extends SmartGlassesAndroidService {
                     @Override
                     public void onTachChanged(ObdManager manager) {
                         //tachString = String.format("%.1f", (manager.getTach() / 1000f));
-                        //Log.d(TAG,"HOLYFUCK NEW TACH: " + manager.getTach());
+                        //Log.d(TAG,"NEW TACH: " + manager.getTach());
                         tachString = String.valueOf(manager.getTach());
 
                         if(!displayRefreshStarted)
@@ -127,9 +128,9 @@ public class DriveService extends SmartGlassesAndroidService {
         handler.postDelayed(new Runnable() {
             public void run() {
                 String toSend = padding;
-                toSend += speedString + "mph | " + tachString + "rpm";
+                toSend += tachString + "rpm | " + speedString + "mph";
 
-                sgmLib.sendReferenceCard(appName, toSend);
+                sgmLib.sendReferenceCard("", toSend);
 
                 handler.postDelayed(this, delay);
             }
@@ -157,19 +158,19 @@ public class DriveService extends SmartGlassesAndroidService {
     public String maybeGeneratePadding(){
         String pad = "";
         if(displayBottom) {
-            for (int i = 0; i < 8; i++) {
+            for (int i = 0; i < 7; i++) {
                 //25 spaces = 1 line on ActiveLook Engo 2
                 pad += "                         ";
             }
         }
         if(displayRight){
-            pad += "  ";
+            pad += ""; //TODO: investigate weirdness here
         }
         return pad;
     }
 
     public void displayAppStopped(String reason){
-        sgmLib.sendReferenceCard(appName, appName + " stopped:\n" + reason);
+        sgmLib.sendReferenceCard(appName, appName + " stopped:    " + reason);
     }
 
     public void stopObdTasks(){
